@@ -1,0 +1,143 @@
+-- phpMyAdmin SQL Dump
+-- version 5.0.4
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Waktu pembuatan: 20 Jul 2021 pada 15.53
+-- Versi server: 10.4.16-MariaDB
+-- Versi PHP: 7.4.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `toko_kecantikan`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `obat`
+--
+
+CREATE TABLE `obat` (
+  `kode_obat` varchar(20) NOT NULL,
+  `merek_obat` varchar(50) NOT NULL,
+  `nama_obat` varchar(50) NOT NULL,
+  `jenis` varchar(20) NOT NULL,
+  `stock` varchar(10) NOT NULL,
+  `biaya` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `obat`
+--
+
+INSERT INTO `obat` (`kode_obat`, `merek_obat`, `nama_obat`, `jenis`, `stock`, `biaya`) VALUES
+('SC-01', 'Ponds', 'watermelon series', 'pelembab', '18', '10000'),
+('SC-02', 'Wardah', 'aloevera', 'soothing gel', '5', '5000'),
+('SC-03', 'Garnier', 'Wasabi foam', 'Face Wash', '26', '20000');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `pembeli`
+--
+
+CREATE TABLE `pembeli` (
+  `id_pembeli` varchar(20) NOT NULL,
+  `nama` varchar(50) NOT NULL,
+  `umur` varchar(3) NOT NULL,
+  `no_hp` varchar(20) NOT NULL,
+  `alamat` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `pembeli`
+--
+
+INSERT INTO `pembeli` (`id_pembeli`, `nama`, `umur`, `no_hp`, `alamat`) VALUES
+('CS-01', 'Michael Gracio', '19', '08117682711', 'Riau');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `transaksi`
+--
+
+CREATE TABLE `transaksi` (
+  `kode_transaksi` varchar(20) NOT NULL,
+  `id_pembeli` varchar(20) NOT NULL,
+  `kode_obat` varchar(20) NOT NULL,
+  `jumlah_beli` varchar(10) NOT NULL,
+  `biaya` varchar(40) NOT NULL,
+  `total_biaya` varchar(50) NOT NULL,
+  `tanggal_transaksi` varchar(50) NOT NULL,
+  `metode_bayar` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data untuk tabel `transaksi`
+--
+
+INSERT INTO `transaksi` (`kode_transaksi`, `id_pembeli`, `kode_obat`, `jumlah_beli`, `biaya`, `total_biaya`, `tanggal_transaksi`, `metode_bayar`) VALUES
+('TS-01', 'CS-01', 'SC-03', '5', '20000', '100000', '19-07-2021', 'Transfer');
+
+--
+-- Trigger `transaksi`
+--
+DELIMITER $$
+CREATE TRIGGER `trg_transaksi` AFTER INSERT ON `transaksi` FOR EACH ROW BEGIN
+	UPDATE obat SET stock = stock -
+new.jumlah_beli
+	WHERE kode_obat = new.kode_obat;
+END
+$$
+DELIMITER ;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indeks untuk tabel `obat`
+--
+ALTER TABLE `obat`
+  ADD PRIMARY KEY (`kode_obat`);
+
+--
+-- Indeks untuk tabel `pembeli`
+--
+ALTER TABLE `pembeli`
+  ADD PRIMARY KEY (`id_pembeli`);
+
+--
+-- Indeks untuk tabel `transaksi`
+--
+ALTER TABLE `transaksi`
+  ADD PRIMARY KEY (`kode_transaksi`),
+  ADD KEY `fk_id_pembeli` (`id_pembeli`),
+  ADD KEY `fk_kode_obat` (`kode_obat`);
+
+--
+-- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
+--
+
+--
+-- Ketidakleluasaan untuk tabel `transaksi`
+--
+ALTER TABLE `transaksi`
+  ADD CONSTRAINT `fk_id_pembeli` FOREIGN KEY (`id_pembeli`) REFERENCES `pembeli` (`id_pembeli`),
+  ADD CONSTRAINT `fk_kode_obat` FOREIGN KEY (`kode_obat`) REFERENCES `obat` (`kode_obat`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
